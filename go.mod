@@ -1,4 +1,4 @@
-module github.com/Yakiyo/go-template
+module github.com/Yakiyo/rat
 
 go 1.21.0
 

@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/Yakiyo/go-template/utils/meta"
-	"github.com/Yakiyo/go-template/utils/where"
+	"github.com/Yakiyo/rat/utils/meta"
+	"github.com/Yakiyo/rat/utils/where"
 	"github.com/charmbracelet/log"
 	v "github.com/spf13/viper"
 )
