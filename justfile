@@ -14,7 +14,7 @@ test:
 	go test ./...
 
 build:
-	go build -o tldr main.go
+	go build -o dist/app main.go
 
 fmt:
 	go fmt ./...
