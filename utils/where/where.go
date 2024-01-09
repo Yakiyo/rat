@@ -11,11 +11,11 @@ import (
 )
 
 // app root dir, this is private and is to be used interally within the package only
-// default: $HOME/{{appName}} - i.e. if app is kubernetes, it would be ~/kubernetes
+// default: $HOME/.config/{{appName}} - i.e. if app is kubernetes, it would be ~/.config/kubernetes
 var root string
 
 func init() {
-	root = filepath.Join(Home(), meta.AppName)
+	root = filepath.Join(Home(), ".config")
 }
 
 // find user home dir. In our case, we panic when we can't get it
@@ -38,8 +38,8 @@ func RootDir() string {
 	return root
 }
 
-// default config file path - ~/{{appname}}/{{appname}}.toml
-// toml is more human friendly so its a good config file syntax
+// default config file path - ~/.config/{{appname}}.toml
+// toml is more human friendly so its a good config file format
 func Config() string {
 	return filepath.Join(root, meta.AppName+".toml")
 }
