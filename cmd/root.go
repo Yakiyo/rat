@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
 	"github.com/Yakiyo/go-template/utils"
@@ -15,8 +16,8 @@ import (
 
 var rootCmd = &cobra.Command{
 	Use:     meta.AppName,
-	Short:   "Shorter description",
-	Long:    `Longer description`,
+	Short:   "A cat clone without wings",
+	Long:    `Concatenate files to stdin`,
 	Version: meta.Version,
 	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 		config.BindFlags(cmd)
@@ -35,6 +36,17 @@ var rootCmd = &cobra.Command{
 		utils.SetColor(viper.GetString("color"))
 
 		log.Debug(viper.AllSettings())
+		return nil
+	},
+	RunE: func(cmd *cobra.Command, args []string) error {
+		input, err := readStdin()
+		if err != nil {
+			return err
+		}
+		for _, line := range input {
+			fmt.Println(line)
+		}
+		fmt.Println(len(input))
 		return nil
 	},
 }
