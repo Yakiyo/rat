@@ -8,13 +8,13 @@ default:
   @just --list
 
 @run *arg:
-    go run main.go $@
+    go run . $@
 
 test:
 	go test ./...
 
 build:
-	go build -o dist/app main.go
+	go build -o dist/app .
 
 fmt:
 	go fmt ./...
