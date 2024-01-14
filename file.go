@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/alecthomas/chroma"
 	"github.com/alecthomas/chroma/lexers"
 )
@@ -10,21 +12,15 @@ type file struct {
 	filename string
 
 	lexer chroma.Lexer
-	style chroma.Lexer
 }
 
 func (f *file) detect() error {
-	// if lang != "" {
-	// 	f.lexer = lexers.Get(lang)
-	// 	if f.lexer == nil {
-	// 		return errors.New("Unknown language " + lang)
-	// 	}
-	// 	return nil
-	// }
 	if lexer != nil {
 		return nil
 	}
-	f.lexer = lexers.Match(f.filename)
+	if f.filename != "-" {
+		f.lexer = lexers.Match(f.filename)
+	}
 	// if we can't match by filename, try analyzing content
 	if f.lexer == nil {
 		f.lexer = lexers.Analyse(f.content)
@@ -36,6 +32,11 @@ func (f *file) detect() error {
 	return nil
 }
 
-func (f *file) setStyle(s string) error {
-	return nil
+func (f *file) format() error {
+	iter, err := f.lexer.Tokenise(nil, f.content)
+	if err != nil {
+		return err
+	}
+	err = formatter().Format(os.Stdout, style, iter)
+	return err
 }

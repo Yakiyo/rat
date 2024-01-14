@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/charmbracelet/log"
-	flag "github.com/spf13/pflag"
+	"github.com/spf13/pflag"
 	"os"
 	"strings"
 )
@@ -12,25 +12,24 @@ import (
 const version string = "0.1.0"
 
 var (
-	vf = flag.BoolP("version", "v", false, "Print version for rat")
-	hf = flag.BoolP("help", "h", false, "Print help")
-	lf = flag.StringP("language", "l", "", "Select language to use")
-	sf = flag.String("style", "dracula", "Choose chroma style to use")
+	vf = pflag.BoolP("version", "v", false, "Print version for rat")
+	hf = pflag.BoolP("help", "h", false, "Print help")
+	lf = pflag.StringP("language", "l", "", "Select language to use")
+	sf = pflag.String("style", "dracula", "Choose chroma style to use")
 )
 
 func init() {
-	print := func(a ...any) { fmt.Fprintln(os.Stderr, a...) }
-	flag.Usage = func() {
-		print("Concatenate FILE(s) to standard output.")
-		print("Usage: rat [OPTIONS] [ARGS]")
-		print("When no args is provided or `-` is given, stdin is used for input")
-		print()
-		flag.PrintDefaults()
+	pflag.Usage = func() {
+		fmt.Fprintln(os.Stderr, "Concatenate FILE(s) to standard output.")
+		fmt.Fprintln(os.Stderr, "Usage: rat [OPTIONS] [ARGS]")
+		fmt.Fprintln(os.Stderr, "When no args is provided or `-` is given, stdin is used for input")
+		fmt.Fprintln(os.Stderr)
+		pflag.PrintDefaults()
 	}
 }
 
 func main() {
-	flag.Parse()
+	pflag.Parse()
 
 	if *vf {
 		fmt.Println("Rat version", version)
@@ -38,14 +37,17 @@ func main() {
 	}
 
 	if *hf {
-		flag.Usage()
+		pflag.Usage()
 		return
 	}
-	args := flag.Args()
+	args := pflag.Args()
 	if len(args) < 1 {
 		args = append(args, "-")
 	}
-
+	if err := setDefaults(); err != nil {
+		log.Error(err)
+		return
+	}
 	files := []file{}
 	// keep reusing this shit
 	var f file
@@ -76,7 +78,24 @@ func main() {
 			}
 		}
 		files = append(files, f)
-		f.detect()
 	}
-	fmt.Println(len(files))
+	log.Info("finished reading files", "len", len(files))
+	for _, file := range files {
+		log.Info(file.filename)
+		// we prolly don't want pretty printing
+		if style == nil {
+			fmt.Println(file.content)
+			continue
+		}
+		err := f.detect()
+		if err != nil {
+			log.Error(err)
+			return
+		}
+		err = f.format()
+		if err != nil {
+			log.Error(err)
+			return
+		}
+	}
 }
