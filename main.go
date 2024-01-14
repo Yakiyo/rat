@@ -1,12 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"os"
-	"strings"
-
 	"github.com/charmbracelet/log"
 	flag "github.com/spf13/pflag"
+	"os"
+	"strings"
 )
 
 const version string = "0.1.0"
@@ -14,6 +14,8 @@ const version string = "0.1.0"
 var (
 	vf = flag.BoolP("version", "v", false, "Print version for rat")
 	hf = flag.BoolP("help", "h", false, "Print help")
+	lf = flag.StringP("language", "l", "", "Select language to use")
+	sf = flag.String("style", "dracula", "Choose chroma style to use")
 )
 
 func init() {
@@ -43,7 +45,10 @@ func main() {
 	if len(args) < 1 {
 		args = append(args, "-")
 	}
-	files := []string{}
+
+	files := []file{}
+	// keep reusing this shit
+	var f file
 	for _, arg := range args {
 		if arg == "-" {
 			str, err := readStdin()
@@ -51,15 +56,27 @@ func main() {
 				log.Error("Unexpected error when reading input from stdin", "err", err)
 				return
 			}
-			files = append(files, strings.Join(str, "\n"))
-			continue
+			f = file{
+				content:  strings.Join(str, "\n"),
+				filename: "-",
+			}
+		} else {
+			bytes, err := os.ReadFile(arg)
+			if err != nil {
+				if errors.Is(err, os.ErrNotExist) {
+					log.Error("No file exists at path %s", arg)
+					return
+				}
+				log.Error("Error when trying to read file", "err", err)
+				return
+			}
+			f = file{
+				content:  string(bytes),
+				filename: arg,
+			}
 		}
-		file, err := os.ReadFile(arg)
-		if err != nil {
-			log.Error("Error when trying to read file", "err", err)
-			return
-		}
-		files = append(files, string(file))
+		files = append(files, f)
+		f.detect()
 	}
 	fmt.Println(len(files))
 }
