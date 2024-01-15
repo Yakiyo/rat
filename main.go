@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/alecthomas/chroma/quick"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/pflag"
 	"os"
@@ -92,7 +93,7 @@ func main() {
 			log.Error(err)
 			return
 		}
-		err = f.format()
+		err = quick.Highlight(os.Stdout, file.content, f.lexer.Config().Name, "terminal16m", *sf)
 		if err != nil {
 			log.Error(err)
 			return

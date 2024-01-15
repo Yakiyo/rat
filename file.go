@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	"github.com/alecthomas/chroma"
 	"github.com/alecthomas/chroma/lexers"
 )
@@ -29,14 +27,15 @@ func (f *file) detect() error {
 	if f.lexer == nil {
 		f.lexer = lexers.Fallback
 	}
+	f.lexer = chroma.Coalesce(f.lexer)
 	return nil
 }
 
-func (f *file) format() error {
-	iter, err := f.lexer.Tokenise(nil, f.content)
-	if err != nil {
-		return err
-	}
-	err = formatter().Format(os.Stdout, style, iter)
-	return err
-}
+// func (f *file) format() error {
+// 	iter, err := f.lexer.Tokenise(nil, f.content)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	err = formatter().Format(os.Stdout, style, iter)
+// 	return err
+// }
