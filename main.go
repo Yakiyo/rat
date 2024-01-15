@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/alecthomas/chroma/styles"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/pflag"
 )
@@ -20,19 +19,7 @@ var (
 	sf = pflag.String("style", "dracula", "Choose chroma style to use")
 )
 
-func init() {
-	pflag.Usage = func() {
-		fmt.Fprintln(os.Stderr, "Concatenate FILE(s) to standard output.")
-		fmt.Fprintln(os.Stderr, "Usage: rat [OPTIONS] [ARGS]")
-		fmt.Fprintln(os.Stderr, "When no args is provided or `-` is given, stdin is used for input")
-		fmt.Fprintln(os.Stderr)
-		pflag.PrintDefaults()
-	}
-}
-
 func run() error {
-	pflag.Parse()
-
 	if *vf {
 		fmt.Println("Rat version", version)
 		return nil
@@ -78,9 +65,13 @@ func run() error {
 		}
 		files = append(files, f)
 	}
-	log.Info(styles.Get(*sf).Name)
+	_, noc := os.LookupEnv("NO_COLOR")
 	for _, file := range files {
 		log.Info("printing file", "filename", file.filename)
+		if *sf == "none" || noc {
+			fmt.Println(file.content)
+			continue
+		}
 		err := file.format()
 		if err != nil {
 			return err
@@ -90,6 +81,18 @@ func run() error {
 }
 
 func main() {
+	initLogger()
+
+	pflag.Usage = func() {
+		fmt.Fprintln(os.Stderr, "Concatenate FILE(s) to standard output.")
+		fmt.Fprintln(os.Stderr, "Usage: rat [OPTIONS] [ARGS]")
+		fmt.Fprintln(os.Stderr, "When no args is provided or `-` is given, stdin is used for input")
+		fmt.Fprintln(os.Stderr)
+		pflag.PrintDefaults()
+	}
+
+	pflag.Parse()
+
 	err := run()
 	if err != nil {
 		log.Error(err)
