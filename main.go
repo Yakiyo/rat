@@ -3,11 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/alecthomas/chroma/quick"
-	"github.com/charmbracelet/log"
-	"github.com/spf13/pflag"
 	"os"
 	"strings"
+
+	"github.com/alecthomas/chroma/styles"
+	"github.com/charmbracelet/log"
+	"github.com/spf13/pflag"
 )
 
 const version string = "0.1.0"
@@ -29,26 +30,23 @@ func init() {
 	}
 }
 
-func main() {
+func run() error {
 	pflag.Parse()
 
 	if *vf {
 		fmt.Println("Rat version", version)
-		return
+		return nil
 	}
 
 	if *hf {
 		pflag.Usage()
-		return
+		return nil
 	}
 	args := pflag.Args()
 	if len(args) < 1 {
 		args = append(args, "-")
 	}
-	if err := setDefaults(); err != nil {
-		log.Error(err)
-		return
-	}
+
 	files := []file{}
 	// keep reusing this shit
 	var f file
@@ -56,8 +54,9 @@ func main() {
 		if arg == "-" {
 			str, err := readStdin()
 			if err != nil {
-				log.Error("Unexpected error when reading input from stdin", "err", err)
-				return
+				// log.Error("Unexpected error when reading input from stdin", "err", err)
+				err = errors.Join(errors.New("unexpected error when reading input from stdin"), err)
+				return err
 			}
 			f = file{
 				content:  strings.Join(str, "\n"),
@@ -67,11 +66,10 @@ func main() {
 			bytes, err := os.ReadFile(arg)
 			if err != nil {
 				if errors.Is(err, os.ErrNotExist) {
-					log.Error("No file exists at path %s", arg)
-					return
+					return fmt.Errorf("no file exists at path %s", arg)
+
 				}
-				log.Error("Error when trying to read file", "err", err)
-				return
+				return errors.Join(errors.New("error when trying to read file"), err)
 			}
 			f = file{
 				content:  string(bytes),
@@ -80,23 +78,21 @@ func main() {
 		}
 		files = append(files, f)
 	}
-	log.Info("finished reading files", "len", len(files))
+	log.Info(styles.Get(*sf).Name)
 	for _, file := range files {
-		log.Info(file.filename)
-		// we prolly don't want pretty printing
-		if style == nil {
-			fmt.Println(file.content)
-			continue
-		}
-		err := f.detect()
+		log.Info("printing file", "filename", file.filename)
+		err := file.format()
 		if err != nil {
-			log.Error(err)
-			return
+			return err
 		}
-		err = quick.Highlight(os.Stdout, file.content, f.lexer.Config().Name, "terminal16m", *sf)
-		if err != nil {
-			log.Error(err)
-			return
-		}
+	}
+	return nil
+}
+
+func main() {
+	err := run()
+	if err != nil {
+		log.Error(err)
+		os.Exit(1)
 	}
 }
