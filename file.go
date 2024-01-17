@@ -57,14 +57,9 @@ func (f *file) format() error {
 	lexer = chroma.Coalesce(lexer)
 	// detect style
 
-	style := styles.Fallback
-	// if output is a tty and style wasn't set to none,
-	// we use pretty printing styles
-	if isAtty() && *sf != "none" {
-		style = styles.Get(*sf)
-		if style == nil {
-			return fmt.Errorf("unknown style value %s", *sf)
-		}
+	style := styles.Get(*sf)
+	if style == nil {
+		return fmt.Errorf("unknown style value %s", *sf)
 	}
 
 	iter, err := lexer.Tokenise(nil, f.content)

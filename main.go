@@ -15,6 +15,7 @@ const version string = "0.1.0"
 var (
 	vf = pflag.BoolP("version", "v", false, "Print version for rat")
 	hf = pflag.BoolP("help", "h", false, "Print help")
+	ff = pflag.BoolP("force", "f", false, "Pretty print even if output is not a tty")
 	lf = pflag.StringP("language", "l", "", "Select language to use")
 	sf = pflag.String("style", "dracula", "Choose chroma style to use")
 )
@@ -68,7 +69,7 @@ func run() error {
 	_, noc := os.LookupEnv("NO_COLOR")
 	for _, file := range files {
 		log.Info("printing file", "filename", file.filename)
-		if *sf == "none" || noc {
+		if *sf == "none" || noc || (!isAtty() && !*ff) {
 			fmt.Println(file.content)
 			continue
 		}
