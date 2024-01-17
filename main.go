@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/alecthomas/chroma/lexers"
 	"github.com/charmbracelet/log"
 	"github.com/spf13/pflag"
 )
@@ -16,6 +17,7 @@ var (
 	vf = pflag.BoolP("version", "v", false, "Print version for rat")
 	hf = pflag.BoolP("help", "h", false, "Print help")
 	ff = pflag.BoolP("force", "f", false, "Pretty print even if output is not a tty")
+	af = pflag.Bool("list", false, "List all supported languages")
 	lf = pflag.StringP("language", "l", "", "Select language to use")
 	sf = pflag.String("style", "dracula", "Choose chroma style to use")
 )
@@ -30,6 +32,13 @@ func run() error {
 		pflag.Usage()
 		return nil
 	}
+
+	if *af {
+		for _, lang := range lexers.Names(false) {
+			fmt.Println(lang)
+		}
+	}
+
 	args := pflag.Args()
 	if len(args) < 1 {
 		args = append(args, "-")
