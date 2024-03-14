@@ -1,0 +1,29 @@
+{
+    "version": "0.1.0",
+    "architecture": {
+        "32bit": {
+            "url": "https://github.com/Yakiyo/rat/releases/download/v0.1.0/rat_Windows_i386.zip",
+            "bin": [
+                "rat.exe"
+            ],
+            "hash": "d68337cd8f215e09b7770925c4abfa7cf5bbc578a67c791bcbc7299121ff74e2"
+        },
+        "64bit": {
+            "url": "https://github.com/Yakiyo/rat/releases/download/v0.1.0/rat_Windows_x86_64.zip",
+            "bin": [
+                "rat.exe"
+            ],
+            "hash": "f13f3b4d54d5b01ff907c0e4f54040fffe8c61ca69e09f7891c4acc67cd50478"
+        },
+        "arm64": {
+            "url": "https://github.com/Yakiyo/rat/releases/download/v0.1.0/rat_Windows_arm64.zip",
+            "bin": [
+                "rat.exe"
+            ],
+            "hash": "9081555a4a95391a8f18ba7d45c9fe41c43f5ec9a443cd8ad1e1261d650a0535"
+        }
+    },
+    "homepage": "https://github.com/Yakiyo/rat",
+    "license": "MIT",
+    "description": "rat version v0.1.0"
+}
